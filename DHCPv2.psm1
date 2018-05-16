@@ -1,10 +1,10 @@
 function Set-DhcpServerv4Reservationv2
 {
   param (
-    #[parameter(Mandatory=$true,ParameterSetName="ClientId")][String]$ClientId,
-    #[parameter(ParameterSetName="NewClientId")][String]$NewClientId
-    $IPAddress,
-    $NewIPAddress
+    [String]$ClientId,
+    [String]$NewClientId,
+    [parameter(Mandatory=$true)][IPAddress]$IPAddress,
+    [IPAddress]$NewIPAddress #,
     #[string]$NewDescription,
     #[string]$NewName,
     #[AsJob]$AsJob,
@@ -17,5 +17,20 @@ function Set-DhcpServerv4Reservationv2
     #[CommonParameters]$CommonParameters
     )
 
-    Write-Host Hello $IPAddress
+    IPAddress.
+
+    #Case 1
+    if(-not [IPAddress]::IsNullOrEmpty($NewIpAddress))
+    {
+        Write-Host Hello!
+    }
+
+    #Case 2
+
+
+    #Case 3
+
+    $reservation = Get-DhcpServerv4Reservation -IPAddress $IPAddress
+    Remove-DhcpServerv4Reservation -IPAddress $IPAddress
+    Add-DhcpServerv4Reservation 
 }
