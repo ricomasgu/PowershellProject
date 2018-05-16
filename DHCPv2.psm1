@@ -17,7 +17,7 @@ function Set-DhcpServerv4Reservationv2
     #[CommonParameters]$CommonParameters
     )
 
-    IPAddress.
+    
 
     #Case 1
     if(-not [IPAddress]::IsNullOrEmpty($NewIpAddress))
