@@ -4,23 +4,26 @@ Casos:
 	2. Usuario quiere cambiar la MAC
 	3. Usuario quiere cambiar la MAC y la IP
 
+Caso 3
+Prerrequisitos: Introducir IP y la MAC ambos old and new
+ Usuario introduce valores.
+ Comprobar si ha introducido la nueva IP y la nueva MAC.
+	No => Pasar al siguiente
+	Yes => Obtener la reserva y modificarla 
+
+Caso 2
+Prerrequisitos: Introducir la MAC old and new 
+ Usuario introduce valores.
+ Comprobar si ha introducido la nueva MAC.
+	No => Pasar al siguiente
+	Yes => Obtener las reservas presentes en todos los scopes y modificarla
+
 Caso 1
 Prerequisitos: Introducir la IP old and new
  Usuario introduce valores.
  Comprobar si ha introducido la nueva IP.
-	No ERROR
- 
-Caso 2
-Prerrequisitos: Introducir la IP/Scope y la MAC old and new 
- Usuario introduce valores.
- Comprobar si ha introducido la nueva MAC.
-	No ERROR
-
-Caso 3
-Prerrequisitos: Introducir IP/Scope y la MAC ambos old and new
- Usuario introduce valores.
- Comprobar si ha introducido la nueva IP y la nueva MAC.
-	No ERROR
+	No => Fin
+	Yes => Obtener la reserva y modificarla
 
 Continuacion:
  Obtener anterior reserva.
