@@ -1,39 +1,65 @@
 function Set-DhcpServerv4Reservationv2
 {
-  param (
-    [String]$ClientId,
-    [String]$NewClientId,
-    [IPAddress]$IPAddress,
-    [IPAddress]$NewIPAddress #,
-    #[string]$NewDescription,
-    #[string]$NewName,
-    #[AsJob]$AsJob,
-    #[CimSession]$CimSession,
-    #[PassThru]$PassThru,
-    #[Int32]$ThrottleLimit,
-    #[string]$Type,
-    #[boolean]$Confirm,
-    #[WhatIf]$WhatIf,
-    #[CommonParameters]$CommonParameters
+    param (
+        [String]$ClientId,
+        [String]$NewClientId,
+        [IPAddress]$IPAddress,
+        [IPAddress]$NewIPAddress,
+        [IPAddress]$Scope, 
+        [String]$ComputerName
     )
 
     
-    #Case 3: Want to change IPAddress and MacAddress
+    #Case 3: Want to change IPAddress and MacAddress.
     if($NewClientId -and $ClientId -and $IPAddress -and $NewIPAddress){
-        Write-Host Case 3!
-    }
-    #Case 2: Only want to change MacAddress
-    elseif ($NewClientId -and $ClientId) {
-        Write-Host Case 2!
-    }
-    #Case 1: Only want to change IPAddress
-    elseif($NewIpAddress -and $IPAddress)
-    {
-        Write-Host Case 1!
-    }
-    
+        if($ComputerName){
+            $oldReservation=Get-DhcpServerv4Reservation -ComputerName $ComputerName -IPAddress $IPAddress
+            Remove-DhcpServerv4Reservation -ComputerName $ComputerName -IPAddress $IPAddress
+            if ($NewClientId -and $ClientId) {
+                Add-DhcpServerv4Reservation -ComputerName $ComputerName -IPAddress $NewIPAddress -ClientId $NewClientId `
+                -ScopeId $oldReservation.ScopeId -Description $oldReservation.Description -Type $oldReservation.Type -Name $oldReservation.Name
+            }
 
-#    $reservation = Get-DhcpServerv4Reservation -IPAddress $IPAddress
-#    Remove-DhcpServerv4Reservation -IPAddress $IPAddress
-#    Add-DhcpServerv4Reservation 
+            #Case 1: Only want to change IPAddress.
+            else {
+                Add-DhcpServerv4Reservation -ComputerName $ComputerName -IPAddress $NewIPAddress -ClientId $oldReservation.ClientId `
+                -ScopeId $oldReservation.ScopeId -Description $oldReservation.Description -Type $oldReservation.Type -Name $oldReservation.Name
+            }
+        }
+        else {
+            $oldReservation=Get-DhcpServerv4Reservation -IPAddress $IPAddress
+            Remove-DhcpServerv4Reservation -IPAddress $IPAddress
+            if ($NewClientId -and $ClientId) {
+                Add-DhcpServerv4Reservation -IPAddress $NewIPAddress -ClientId $NewClientId `
+                -ScopeId $oldReservation.ScopeId -Description $oldReservation.Description -Type $oldReservation.Type -Name $oldReservation.Name
+            }
+
+            #Case 1: Only want to change IPAddress.
+            else {
+                Add-DhcpServerv4Reservation -IPAddress $NewIPAddress -ClientId $oldReservation.ClientId `
+                -ScopeId $oldReservation.ScopeId -Description $oldReservation.Description -Type $oldReservation.Type -Name $oldReservation.Name
+            }
+        }
+    }
+    #Case 2: Only want to change MacAddress. The change applies ALL SCOPES!!!
+    elseif ($NewClientId -and $ClientId) {
+        if($ComputerName){
+            $oldReservation=Get-DhcpServerv4Scope -ComputerName $ComputerName | 
+            ForEach-Object {Get-DhcpServerv4Reservation -ComputerName $ComputerName -ClientId $ClientId -ScopeId $_.ScopeId.IPAddressToString}
+            Get-DhcpServerv4Scope -ComputerName $ComputerName | 
+            ForEach-Object {Remove-DhcpServerv4Reservation -ComputerName $ComputerName -ClientId $ClientId -ScopeId $_.ScopeId.IPAddressToString}
+            Get-DhcpServerv4Scope -ComputerName $ComputerName | 
+            ForEach-Object {Add-DhcpServerv4Reservation -ComputerName $ComputerName -IPAddress $NewIPAddress -ClientId $NewClientId `
+            -ScopeId $_.ScopeId.IPAddressToString -Description $oldReservation.Description -Type $oldReservation.Type -Name $oldReservation.Name}
+        }
+        else {
+            $oldReservation=Get-DhcpServerv4Scope -ComputerName $ComputerName | 
+            ForEach-Object {Get-DhcpServerv4Reservation -ClientId $ClientId -ScopeId $_.ScopeId.IPAddressToString}
+            Get-DhcpServerv4Scope -ComputerName $ComputerName | 
+            ForEach-Object {Remove-DhcpServerv4Reservation -ClientId $ClientId -ScopeId $_.ScopeId.IPAddressToString}
+            Get-DhcpServerv4Scope -ComputerName $ComputerName | 
+            ForEach-Object {Add-DhcpServerv4Reservation -IPAddress $NewIPAddress -ClientId $NewClientId `
+            -ScopeId $_.ScopeId.IPAddressToString -Description $oldReservation.Description -Type $oldReservation.Type -Name $oldReservation.Name}
+        }
+    }
 }
